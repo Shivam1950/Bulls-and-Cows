@@ -7,7 +7,7 @@ public class Main {
     private static char[] secretCode;
     private static int bull;
     private static int cows;
-    private static int num;
+    private static int num; //length of secret code
 
     //generating code using nano time (changed to random in current iteration of code)
     /*
@@ -96,7 +96,6 @@ public class Main {
         cows = 0;
     }
 
-
     public static void countBC(String secret, String guess) { // to count bulls and cows
 
         int []secDigitCount = new int[10];
@@ -126,32 +125,6 @@ public class Main {
             cows += Math.min(secDigitCount[i], guessDigitCount[i]);
         }
     }
-
-
-    /* //alternative to count bull and cows
-    // note secretNum is the input by user "Not a meaning full var name, I know"
-    
-    protected static void checkBull(char[] secretNum) { // number of bulls
-        for (int i = 0; i < num; i++) {
-            if(Objects.equals(secretNum[i], secretCode[i])) {
-                bull++;
-                secretNum[i] = '*';
-            }
-        }
-    }
-
-    protected static void checkCow(char[] secretNum) { //number of cows
-        char[] tempSecretCode = Arrays.copyOf(secretCode, num);
-        for (int i = 0; i < num; i++) {
-            for (int j = 0; j < num; j++) {
-                if (Objects.equals(secretNum[i], tempSecretCode[j])) {
-                    tempSecretCode[j] = '_';
-                    cows++;
-                }
-            }
-        }
-    }
-    */
 
     public static void printRes() { // print output according to guess
         System.out.print("Grade: ");
