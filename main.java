@@ -1,170 +1,102 @@
 package bullscows;
+
 import java.util.*;
+import java.util.regex.*;
 
 public class Main {
+    private static final Scanner sc = new Scanner(System.in);
 
-    private static final Scanner cin = new Scanner(System.in);
-    private static char[] secretCode;
-    private static int bull;
-    private static int cows;
-    private static int num; //length of secret code
-
-    //generating code using nano time (changed to random in current iteration of code)
-    /*
-    private static void secretCode() { //making secret code which is to be predicted
-        boolean flg = false;
-        do {
-            System.out.println("Please, enter the secret code's length:");
-            num = cin.nextInt();
-
-            if (num > 10) {
-                flg = true;
-                System.out.println("Error: can't generate a secret number with a length of 11 because there aren't enough unique digits.");
-            }
-        } while (flg);
-
-        StringBuilder secretCodeMain;
-        while (true) {
-            StringBuilder secretCode = new StringBuilder(num);
-            long pseudoRandomNumber = System.nanoTime();
-            char[] tempCode = Long.toString(pseudoRandomNumber).toCharArray();
-            for (int i = tempCode.length - 1; i >= 0; i--) {
-                boolean flag = true;
-                for (int j = 0; j < secretCode.length(); j++) {
-                    if (tempCode[i] == secretCode.charAt(j)) {
-                        flag = false;
-                    }
-                }
-                if (flag) {
-                    if (secretCode.length() == 0 && tempCode[i] == '0') {
-                        continue;
-                    }
-                    secretCode.append(tempCode[i]);
-                }
-                if (secretCode.length() == num) {
-                    break;
-                }
-            }
-            if (secretCode.length() == secretCode.capacity()) {
-                secretCodeMain = secretCode;
-                break;
-            }
+    public static String randomGenerator(int length, int symbols) {
+        List<Character> list = new ArrayList<>(List.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+                'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't','u',
+                'v',  'w',  'x', 'y', 'z'));
+        List<Character> randomList = list.subList(0, symbols);
+        Collections.shuffle(randomList);
+        StringBuilder result = new StringBuilder();
+        for (var ch : randomList.subList(0, length)) {
+            result.append(ch);
         }
-        secretCode = new char[secretCodeMain.length()];
-        secretCodeMain.getChars(0, num, secretCode, 0);
-
-        System.out.println("Okay, let's start a game!");
-    }
-    */
-
-    private static void secretCode() { // generating code using Random
-        boolean flg = false;
-        do {
-            System.out.println("Please, enter the secret code's length:");
-            num = cin.nextInt();
-
-            if (num > 10) {
-                flg = true;
-                System.out.println("Error: can't generate a secret number with a length of 11 because there aren't enough unique digits.");
-            }
-        } while (flg);
-
-        Random rand = new Random();
-        StringBuilder secNum = new StringBuilder(num);
-        for (int i = 0; i < num; i++) {
-            boolean flag = false;
-            int intnum;
-            do {
-                intnum = rand.nextInt(10);
-                for (int j = 0; j < secNum.length(); j++) {
-                    if ((intnum + '0')  == secNum.charAt(j)) {
-                        flag =  true;
-                    }
-                }
-            } while (flag);
-            secNum.append(intnum);
-        }
-        secretCode = new char[num];
-        secNum.getChars(0, num, secretCode, 0);
-
-        System.out.println("Okay, let's start a game!");
+        return result.toString();
     }
 
-    protected static void initiateCode() { // to initiate the secret Code
-        secretCode();
-        bull = 0;
-        cows = 0;
-    }
-
-    public static void countBC(String secret, String guess) { // to count bulls and cows
-
-        int []secDigitCount = new int[10];
-        int []guessDigitCount = new int[10];
-        for (int i = 0; i < Math.min(secret.length(), guess.length()); i++) {
-            char secretChar = secret.charAt(i);
-            char guessChar = guess.charAt(i);
-
-            if (secretChar == guessChar) {
-                bull += 1;
-            } else {
-                secDigitCount[secretChar - '0'] += 1;
-                guessDigitCount[guessChar - '0'] += 1;
+    public static boolean calculateScore(String guess, String code, int length) {
+        int bulls = 0;
+        int cows = 0;
+        int i = 0;
+        for (char ch : guess.toCharArray()) {
+            if (code.indexOf(ch) != -1) {
+                if (code.charAt(i) == ch) {
+                    bulls++;
+                } else {
+                    cows++;
+                }
             }
+            i++;
         }
-
-        if (secret.length() > guess.length()){
-            for (int i = guess.length(); i < secret.length(); i++) {
-                secDigitCount[secret.charAt(i) - '0'] += 1;
-            }
-        } else if (secret.length() < guess.length()) {
-            for (int i = secret.length(); i < guess.length(); i++) {
-                guessDigitCount[guess.charAt(i) - '0'] += 1;
-            }
-        }
-        for (int i = 0; i < 10; i++) {
-            cows += Math.min(secDigitCount[i], guessDigitCount[i]);
-        }
-    }
-
-    public static void printRes() { // print output according to guess
-        System.out.print("Grade: ");
-        if (bull > 0) {
-            if (cows > 0) {
-                System.out.println(bull + " bull(s) and " + cows + " cow(s).");
-            } else {
-                System.out.println(bull + " bull(s).");
-            }
+        if (bulls > 0 && cows > 0) {
+            System.out.printf("Grade: %d bull(s) and %d cow(s)\n", bulls, cows);
+        } else if (bulls > 0) {
+            System.out.printf("Grade: %d bull(s)\n", bulls);
         } else if (cows > 0) {
-            System.out.println(cows + " cows(s).");
+            System.out.printf("Grade: %d cow(s)\n", cows);
         } else {
-            System.out.println("None.");
+            System.out.print("Grade: None\n");
         }
-    }
-
-    protected static void playGame() { // method to play game till answer is found
-        boolean flag = true;
-        int turn = 1;
-        do {
-            System.out.println("Turn " + turn + ":");
-            if (turn == 1) {
-                cin.nextLine();
-            }
-            String number = cin.nextLine();
-            countBC(String.valueOf(secretCode), number);
-            printRes();
-            turn++;
-            if (bull == num) {
-                flag = false;
-            }
-            bull = 0;
-            cows = 0;
-        } while (flag);
-        System.out.println("Congratulations! You guessed the secret code.");
+        return bulls == length;
     }
 
     public static void main(String[] args) {
-        initiateCode();
-        playGame();
+        System.out.println("Please, enter the secret code's length:");
+        int length = 0;
+        try {
+            length = sc.nextInt();
+        } catch (Exception e) {
+            System.out.println("Error: Not a valid number");
+            System.exit(0);
+        }
+        if (length <= 0 || length > 36) {
+            System.out.println("Error: can't generate a secret number with inputed length because there aren't enough unique digits.");
+            System.exit(0);
+        }
+        System.out.println("Input the number of possible symbols in the code:");
+        int symbols = 0;
+        try {
+            symbols = sc.nextInt();
+        } catch (Exception e) {
+            System.out.println("Error: Not a valid number");
+            System.exit(0);
+        }
+        if (symbols <= 0 || symbols < length || symbols > 36) {
+            System.out.println("Error: Well it was a Error");
+            System.exit(0);
+        }
+        String code = randomGenerator(length, symbols);
+        System.out.printf("The secret is prepared: %s ", "*".repeat(length));
+        if (symbols <= 10) {
+            System.out.printf("(0-%d).\n", symbols - 1);
+        } else {
+            System.out.printf("(0-9, a-%s).\n", "abcdefghijklmnopqrstuvwxyz".charAt(symbols - 11));
+        }
+        System.out.println("Okay, let's start a game!");
+        int i = 1;
+        sc.nextLine();
+        while (true) {
+            String guess = "";
+            System.out.println("Turn " + i + ":");
+            try {
+                guess = sc.nextLine();
+                if (!Pattern.matches("[a-z0-9]+",guess)) {
+                    throw new ArithmeticException("error message");
+                }
+            } catch (Exception e) {
+                System.out.println("Error: Not a valid number");
+                System.exit(0);
+            }
+            if (calculateScore(guess, code, length)) {
+                System.out.println("Congratulations! You guessed the secret code.");
+                break;
+            }
+            i++;
+        }
     }
 }
-
